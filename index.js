@@ -13,6 +13,19 @@ app.use(express.json());
 
 console.log("Jarvis online");
 
+const requiredEnv = [
+  "OPENAI_API_KEY",
+  "GITHUB_APP_ID",
+  "GITHUB_APP_INSTALLATION_ID",
+  "GITHUB_APP_PRIVATE_KEY",
+];
+
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    console.error(`Missing env var: ${key}`);
+    process.exit(1);
+  }
+}
 // --------------------
 // OpenAI client
 // --------------------
@@ -110,6 +123,7 @@ ${plan.risk}
 // Start server
 // --------------------
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Jarvis listening on ${PORT}`);
 });
