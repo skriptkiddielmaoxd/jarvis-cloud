@@ -67,6 +67,17 @@ const IntentSchema = z.object({
 });
 
 // --------------------
+// Root + health (FIXED)
+// --------------------
+app.get("/", (req, res) => {
+  res.json({ ok: true, service: "jarvis-cloud" });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ ok: true });
+});
+
+// --------------------
 // Helper: plan from intent
 // --------------------
 async function planFromIntent(intent) {
