@@ -167,15 +167,18 @@ ${plan.risk}
 `.trim();
 
     await octokit.request("PUT /repos/{owner}/{repo}/contents/{path}", {
-  owner: "vesper-systems",
-  repo: "vesper-maintainer",
-  path,
-  message: `REQUEST-${id}: ${plan.goal}`,
-  content: Buffer.from(body).toString("base64"),
-});
+      owner: "vesper-systems",
+      repo: "vesper-maintainer",
+      path,
+      message: `REQUEST-${id}: ${plan.goal}`,
+      content: Buffer.from(body).toString("base64"),
+    });
 
-
-    res.json({ ok: true, request: path });
+    res.json({
+      ok: true,
+      request_path: path,
+      request_markdown: body,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: String(err) });
