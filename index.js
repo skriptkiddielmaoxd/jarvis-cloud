@@ -108,8 +108,9 @@ app.get("/ui", (req, res) => {
         body: JSON.stringify({ intent })
       });
       const data = await res.json();
+      // Show only the uploaded request markdown content
       document.getElementById("output").textContent =
-        JSON.stringify(data, null, 2);
+        data.request_markdown || "";
     }
   </script>
 </body>
