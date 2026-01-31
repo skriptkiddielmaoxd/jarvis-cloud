@@ -34,19 +34,28 @@ const openai = new OpenAI({
 });
 
 // --------------------
-// GitHub App Octokit (FIXED)
+// GitHub App key (LOCAL FILE or ENV VAR)
 // --------------------
-const privateKey = fs.readFileSync(
-  "C:/Users/Jazzer/Desktop/jarvis-cloud/github-app.pem",
-  "utf8"
-);
+let privateKey;
 
+if (process.env.GITHUB_APP_PRIVATE_KEY_PATH) {
+  privateKey = fs.readFileSync(
+    process.env.GITHUB_APP_PRIVATE_KEY_PATH,
+    "utf8"
+  );
+} else {
+  privateKey = process.env.GITHUB_APP_PRIVATE_KEY.replace(/\\n/g, "\n");
+}
+
+// --------------------
+// GitHub App Octokit
+// --------------------
 const octokit = new Octokit({
   authStrategy: createAppAuth,
   auth: {
     appId: process.env.GITHUB_APP_ID,
     installationId: process.env.GITHUB_APP_INSTALLATION_ID,
-    privateKey: privateKey,
+    privateKey,
   },
 });
 
@@ -106,16 +115,13 @@ ${plan.scope}
 ${plan.risk}
 `.trim();
 
-    await octokit.request(
-      "PUT /repos/{owner}/{repo}/contents/{path}",
-      {
-        owner: "vesper-systems",
-        repo: "vesper-maintainer",
-        path,
-        message: `REQUEST-${id}: ${plan.goal}`,
-        content: Buffer.from(body).toString("base64"),
-      }
-    );
+    await octokit.request("PUT /repos/{owner}/{repo}/contents/{path}", {
+      owner: "vesper-systems",
+      repo: "vesper-maintainer",
+      path,
+      message: `REQUEST-${id}: ${plan.goal}`,
+      content: Buffer.from(body).toString("base64"),
+    });
 
     res.json({ ok: true, request: path });
   } catch (err) {
