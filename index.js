@@ -17,7 +17,6 @@ const requiredEnv = [
   "OPENAI_API_KEY",
   "GITHUB_APP_ID",
   "GITHUB_APP_INSTALLATION_ID",
-  "GITHUB_APP_PRIVATE_KEY",
 ];
 
 for (const key of requiredEnv) {
@@ -26,6 +25,7 @@ for (const key of requiredEnv) {
     process.exit(1);
   }
 }
+
 // --------------------
 // OpenAI client
 // --------------------
@@ -34,14 +34,19 @@ const openai = new OpenAI({
 });
 
 // --------------------
-// GitHub App Octokit
+// GitHub App Octokit (FIXED)
 // --------------------
+const privateKey = fs.readFileSync(
+  "C:/Users/Jazzer/Desktop/jarvis-cloud/github-app.pem",
+  "utf8"
+);
+
 const octokit = new Octokit({
   authStrategy: createAppAuth,
   auth: {
     appId: process.env.GITHUB_APP_ID,
     installationId: process.env.GITHUB_APP_INSTALLATION_ID,
-    privateKey: process.env.GITHUB_APP_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    privateKey: privateKey,
   },
 });
 
