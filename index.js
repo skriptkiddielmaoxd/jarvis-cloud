@@ -67,7 +67,7 @@ const IntentSchema = z.object({
 });
 
 // --------------------
-// Root + health (FIXED)
+// Root + health
 // --------------------
 app.get("/", (req, res) => {
   res.json({ ok: true, service: "jarvis-cloud" });
@@ -75,6 +75,46 @@ app.get("/", (req, res) => {
 
 app.get("/health", (req, res) => {
   res.json({ ok: true });
+});
+
+// --------------------
+// Web UI
+// --------------------
+app.get("/ui", (req, res) => {
+  res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jarvis UI</title>
+  <style>
+    body { font-family: sans-serif; background:#111; color:#eee; padding:40px; }
+    textarea { width:100%; height:100px; }
+    button { padding:10px 20px; margin-top:10px; }
+    pre { background:#222; padding:10px; margin-top:20px; }
+  </style>
+</head>
+<body>
+  <h1>Jarvis</h1>
+  <textarea id="intent" placeholder="Enter your intent..."></textarea><br/>
+  <button onclick="sendIntent()">Send</button>
+  <pre id="output"></pre>
+
+  <script>
+    async function sendIntent() {
+      const intent = document.getElementById("intent").value;
+      const res = await fetch("/intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ intent })
+      });
+      const data = await res.json();
+      document.getElementById("output").textContent =
+        JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
+  `);
 });
 
 // --------------------
@@ -127,12 +167,13 @@ ${plan.risk}
 `.trim();
 
     await octokit.request("PUT /repos/{owner}/{repo}/contents/{path}", {
-      owner: "vesper-systems",
-      repo: "vesper-maintainer",
-      path,
-      message: `REQUEST-${id}: ${plan.goal}`,
-      content: Buffer.from(body).toString("base64"),
-    });
+  owner: "vesper-systems",
+  repo: "vesper-maintainer",
+  path,
+  message: `REQUEST-${id}: ${plan.goal}`,
+  content: Buffer.from(body).toString("base64"),
+});
+
 
     res.json({ ok: true, request: path });
   } catch (err) {
